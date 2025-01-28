@@ -30,19 +30,64 @@ const char* html = R"rawliteral(
 <!DOCTYPE html>
 <html>
 <head>
-  <title>EV Charging Monitor</title>
+  <title>EV CHARGING</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    p {
+      font-size: 18px;
+      color: #555;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body>
-  <h1>EV Charging Monitor</h1>
-  <p>Charging Status: %STATUS%</p>
-  <p>Voltage: %VOLTAGE% V</p>
-  <p>Current: %CURRENT% A</p>
-  <p>Power: %POWER% W</p>
-  <p>Energy Bill: %BILL% $</p>
-  <form action="/toggle" method="get">
-    <button type="submit" name="state" value="ON">Turn ON</button>
-    <button type="submit" name="state" value="OFF">Turn OFF</button>
-  </form>
+  <h1>EV CHARGING</h1>
+  <div class="section">
+    <button onclick="toggleCharge()">Toggle Charge</button>
+  </div>
+  <div class="section">
+    <p><strong>Status</strong></p>
+    <p>Charge is currently %STATUS%</p>
+  </div>
+  <div class="section">
+    <p><strong>Voltage and Current</strong></p>
+    <p>Current Voltage: %VOLTAGE% V</p>
+    <p>Current Current: %CURRENT% A</p>
+  </div>
+  <div class="section">
+    <p><strong>Power Consumption</strong></p>
+    <p>Power: %POWER% W</p>
+  </div>
+  <div class="section">
+    <p><strong>Bill Amount</strong></p>
+    <p>Bill: %BILL% INR</p>
+  </div>
+  <script>
+    function toggleCharge() {
+      fetch('/toggle').then(response => location.reload());
+    }
+  </script>
 </body>
 </html>
 )rawliteral";
@@ -61,13 +106,10 @@ void handleRoot() {
 
 // Function to handle toggle relay requests
 void handleToggle() {
-  if (server.hasArg("state")) {
-    String state = server.arg("state");
-    if (state == "ON") {
-      digitalWrite(relayPin, HIGH);
-    } else if (state == "OFF") {
-      digitalWrite(relayPin, LOW);
-    }
+  if (digitalRead(relayPin) == LOW) {
+    digitalWrite(relayPin, HIGH);
+  } else {
+    digitalWrite(relayPin, LOW);
   }
   handleRoot();
 }
